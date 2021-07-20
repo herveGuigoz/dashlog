@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'tag.dart';
+
 // dart /Users/herveguigoz/dev/dart/dashlog/bin/dashlog.dart
 // https://github.com/erickzanardo/dashmon/blob/main/lib/src/dashmon.dart
 class Dashlog {
@@ -9,21 +11,18 @@ class Dashlog {
   final List<String> args;
 
   Future<void> start() async {
-    final tags = await getTags();
-    print(tags);
+    final tag = await getTags();
+    print(tag.length);
     exit(1);
   }
 
-  Future<List<String>> getTags() async => _process('git', ['tag', '-l']);
-
-  Future<List<String>> _process(
+  static Future<List<String>> runCommand(
     String executable,
     List<String> arguments,
   ) async {
-    final result = <String>[];
     final _process = await Process.start(executable, arguments);
-    await _process.stdout.transform(utf8.decoder).forEach(result.add);
+    final result = await _process.stdout.transform(utf8.decoder).first;
     _process.kill();
-    return result;
+    return LineSplitter().convert(result);
   }
 }
