@@ -1,26 +1,7 @@
 import '../dashlog.dart';
 
-// https://github.com/ikhemissi/tagged-versions/blob/master/src/index.js
-
-const _tagRegex = r'tag:\s*([^,)]+)';
-final _lineRegex = RegExp(r'^(.+);(.+);(.+)$');
-
-/// Get list of tag.
-Future<List<Tag>> getTags() async {
-  return Dashlog.runCommand(
-    'git',
-    ['log', '--no-walk', '--tags', "--pretty='%d;%H;%ci'", '--decorate=short'],
-  ).then((tags) => tags.lines.map((tag) => Tag._(tag)).toList());
-}
-
-/// Get most recent tag.
-Future<Tag> getLastVersion() async => getTags().then((tags) => tags.first);
-
 class Tag extends Comparable {
-  Tag._(String value)
-      : version = RegExp(_tagRegex).firstMatch(value.tag).group(1),
-        hash = value.hash,
-        date = value.date;
+  Tag._(this.version, this.hash, this.date);
 
   final String version;
   final String hash;
@@ -33,23 +14,39 @@ class Tag extends Comparable {
   String toString() => 'Tag(version: $version, hash: $hash, date: $date)';
 }
 
-extension on List<String> {
-  /// Filter command outputs for lines that satisfy semantic version name.
-  Iterable<String> get lines {
-    return where(
-      (line) =>
-          _lineRegex.hasMatch(line) &&
-          _lineRegex.firstMatch(line).groupCount == 3 &&
-          RegExp(_tagRegex).hasMatch(_lineRegex.firstMatch(line).group(1)),
-    );
-  }
+/// Get list of tag.
+Future<List<Tag>> getTags() async {
+  final lines = await Dashlog.runCommand(
+    'git',
+    ['log', '--no-walk', '--tags', "--pretty='%d;%H;%ci'", '--decorate=short'],
+  );
+
+  return _parseTags(lines);
 }
 
-extension on String {
-  String get sanitilize => replaceAll("'", '').trim();
+/// Get most recent tag.
+Future<Tag> getLastVersion() async => getTags().then((tags) => tags.first);
 
-  RegExpMatch get semanticCommits => _lineRegex.firstMatch(sanitilize);
-  String get tag => semanticCommits.group(1);
-  String get hash => semanticCommits.group(2);
-  DateTime get date => DateTime.parse(semanticCommits.group(3));
+/// Parse [String] to [Tag]
+List<Tag> _parseTags(List<String> lines) {
+  final tags = <Tag>[];
+  final tagRegex = RegExp(r'tag:\s*([^,)]+)');
+  final lineRegex = RegExp(r'^(.+);(.+);(.+)$');
+
+  for (final line in lines) {
+    final matches = lineRegex.firstMatch(line);
+    if (matches != null && matches.groupCount == 3) {
+      // Check if version is well formatted
+      final version = tagRegex.firstMatch(matches.group(1)!);
+      if (version == null) continue;
+
+      tags.add(Tag._(
+        version.group(1)!,
+        matches.group(2)!,
+        DateTime.parse(matches.group(3)!),
+      ));
+    }
+  }
+
+  return tags;
 }

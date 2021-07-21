@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'commit.dart';
 import 'tag.dart';
 
 // dart /Users/herveguigoz/dev/dart/dashlog/bin/dashlog.dart
@@ -11,8 +12,9 @@ class Dashlog {
   final List<String> args;
 
   Future<void> start() async {
-    final tag = await getTags();
-    print(tag.length);
+    final tags = await getTags();
+    final commits = await getCommits(start: tags.first, end: tags[1]);
+    commits.forEach(print);
     exit(1);
   }
 
@@ -21,8 +23,12 @@ class Dashlog {
     List<String> arguments,
   ) async {
     final _process = await Process.start(executable, arguments);
-    final result = await _process.stdout.transform(utf8.decoder).first;
+    final res = await _process.stdout.transform(utf8.decoder).first;
     _process.kill();
-    return LineSplitter().convert(result);
+    return LineSplitter().convert(res).map((line) => line.sanitilize).toList();
   }
+}
+
+extension on String {
+  String get sanitilize => replaceAll("'", '').trim();
 }
