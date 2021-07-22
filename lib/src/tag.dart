@@ -1,6 +1,6 @@
-import '../dashlog.dart';
+import 'dashlog.dart';
 
-class Tag extends Comparable {
+class Tag extends Comparable<Tag> {
   Tag._(this.version, this.hash, this.date);
 
   final String version;
@@ -8,7 +8,7 @@ class Tag extends Comparable {
   final DateTime date;
 
   @override
-  int compareTo(other) => date.compareTo(other);
+  int compareTo(other) => other.date.compareTo(date);
 
   @override
   String toString() => 'Tag(version: $version, hash: $hash, date: $date)';
@@ -16,7 +16,7 @@ class Tag extends Comparable {
 
 /// Get list of tag.
 Future<List<Tag>> getTags() async {
-  final lines = await Dashlog.runCommand(
+  final lines = await runCommand(
     'git',
     ['log', '--no-walk', '--tags', "--pretty='%d;%H;%ci'", '--decorate=short'],
   );
@@ -25,9 +25,9 @@ Future<List<Tag>> getTags() async {
 }
 
 /// Get most recent tag.
-Future<Tag> getLastVersion() async => getTags().then((tags) => tags.first);
+Future<Tag> getLastTag() async => getTags().then((tags) => tags.first);
 
-/// Parse [String] to [Tag]
+/// Cast list of [String] to list of [Tag]
 List<Tag> _parseTags(List<String> lines) {
   final tags = <Tag>[];
   final tagRegex = RegExp(r'tag:\s*([^,)]+)');
@@ -48,5 +48,5 @@ List<Tag> _parseTags(List<String> lines) {
     }
   }
 
-  return tags;
+  return tags..sort();
 }

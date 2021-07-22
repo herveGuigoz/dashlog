@@ -1,7 +1,22 @@
 # DASHLOG
 
-Inspired by [auto-changelog](https://github.com/cookpete/auto-changelog) and [Release](https://github.com/vercel/release)
+Command line tool for generating a changelog from git tags and commit history. 
 
-[Git Format](https://git-scm.com/docs/git-log#Documentation/git-log.txt-emHem)
+### Semantic Commit Messages
 
-`git log 2861f87602c0ccbe55cb595e7c485459185a8766...5c4242d55cc0880a710ead4f213ed0817d0ae532 --oneline`
+> Format: `<type>(<scope>): <subject>` 
+
+```
+feat: add hat wobble
+^--^  ^------------^
+|     |
+|     +-> Summary in present tense.
+|
++-------> Type: chore, docs, feat, fix, refactor, style, or test.
+
+NB: scope is optional
+```
+
+References:
+
+- https://www.conventionalcommits.org/

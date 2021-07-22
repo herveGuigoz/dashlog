@@ -1,4 +1,4 @@
 
 library dashlog;
 
-export './src/dashlog.dart';
+export './src/dashlog.dart' show Dashlog;
