@@ -16,7 +16,7 @@ class Tag extends Comparable<Tag> {
 
 /// Get list of tag.
 Future<List<Tag>> getTags() async {
-  final lines = await runCommand(
+  final lines = await shell(
     'git',
     ['log', '--no-walk', '--tags', "--pretty='%d;%H;%ci'", '--decorate=short'],
   );

@@ -18,7 +18,7 @@ class Commit extends Comparable<Commit> {
 
 /// Get list of tag.
 Future<List<Commit>> getCommits({required Tag start, required Tag end}) async {
-  final lines = await runCommand(
+  final lines = await shell(
     'git',
     ['log', '${start.hash}...${end.hash}', '-E', '--format=%H;%s;'],
   );
