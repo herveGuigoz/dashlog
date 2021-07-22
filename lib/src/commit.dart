@@ -3,17 +3,17 @@ import 'package:dashlog/src/tag.dart';
 import 'dashlog.dart';
 
 class Commit extends Comparable<Commit> {
-  Commit._(this.hash, this.type, this.name);
+  Commit._(this.hash, this.type, this.description);
 
   final String hash;
   final String type;
-  final String name;
+  final String description;
 
   @override
   int compareTo(Commit other) => type.compareTo(other.type);
 
   @override
-  String toString() => 'Commit(hash: $hash, type: $type, name: $name)';
+  String toString() => 'Commit($hash $type: $description)';
 }
 
 /// Get list of tag.
@@ -29,13 +29,17 @@ Future<List<Commit>> getCommits({required Tag start, required Tag end}) async {
 /// Cast list of [String] to list of [Commit]
 List<Commit> _parseCommits(List<String> lines) {
   final commits = <Commit>[];
-  final regex = RegExp(r'^(.+);(.+):(.+);');
+  final regex = RegExp(r'^(?<hash>.+);(?<type>.+):(?<description>.+);');
 
   for (final line in lines) {
     final matches = regex.firstMatch(line);
     if (matches != null && matches.groupCount == 3) {
       commits.add(
-        Commit._(matches.group(1)!, matches.group(2)!, matches.group(3)!),
+        Commit._(
+          matches.namedGroup('hash')!,
+          matches.namedGroup('type')!,
+          matches.namedGroup('description')!,
+        ),
       );
     }
   }

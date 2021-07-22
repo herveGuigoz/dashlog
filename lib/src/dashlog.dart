@@ -40,7 +40,7 @@ class Dashlog {
             'date': tags[i].date.ddMMyyyy,
             'commits': [
               for (final commit in commits)
-                {'type': commit.type, 'name': commit.name},
+                {'type': commit.type, 'description': commit.description},
             ],
           },
         ],
