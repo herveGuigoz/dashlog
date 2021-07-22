@@ -10,9 +10,9 @@ import 'package:mustache_template/mustache.dart';
 ///         'version': 'v0.0.1',
 ///         'date': '21-01-1988',
 ///         'commits': [
-///           {'type': 'Fix', 'name': 'Big fix'},
-///           {'type': 'Feature', 'name': 'Amazing feature'},
-///           {'type': 'Test', 'name': 'Tests on last fixes'},
+///           {'type': 'Fix', 'description': 'Big fix'},
+///           {'type': 'Feature', 'description': 'Amazing feature'},
+///           {'type': 'Test', 'description': 'Tests on last fixes'},
 ///         ]
 ///       }
 ///     ]
@@ -40,7 +40,7 @@ const kTemplate = '''
 > {{ date }}
 
 {{ #commits }}
-* {{ type }}: {{ name }}
+* {{ type }}: {{ description }}
 {{ /commits }}
 {{ /tags }}
 ''';

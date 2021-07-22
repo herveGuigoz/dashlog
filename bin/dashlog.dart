@@ -1,6 +1,7 @@
+import 'dart:io';
+
 import 'package:dashlog/dashlog.dart';
 
-void main(List<String> arguments) {
-  final dashmon = Dashlog(arguments);
-  dashmon.start();
+Future<void> main(List<String> arguments) async {
+  exit(await Dashlog().run(arguments));
 }

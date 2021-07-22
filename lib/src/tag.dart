@@ -1,5 +1,6 @@
 import 'dashlog.dart';
 
+/// A representation of a parsed tag message.
 class Tag extends Comparable<Tag> {
   Tag._(this.version, this.hash, this.date);
 
@@ -16,7 +17,7 @@ class Tag extends Comparable<Tag> {
 
 /// Get list of tag.
 Future<List<Tag>> getTags() async {
-  final lines = await runCommand(
+  final lines = await shell(
     'git',
     ['log', '--no-walk', '--tags', "--pretty='%d;%H;%ci'", '--decorate=short'],
   );
@@ -31,19 +32,19 @@ Future<Tag> getLastTag() async => getTags().then((tags) => tags.first);
 List<Tag> _parseTags(List<String> lines) {
   final tags = <Tag>[];
   final tagRegex = RegExp(r'tag:\s*([^,)]+)');
-  final lineRegex = RegExp(r'^(.+);(.+);(.+)$');
+  final lineRegex = RegExp(r'^(?<version>.+);(?<hash>.+);(?<date>.+)$');
 
   for (final line in lines) {
     final matches = lineRegex.firstMatch(line);
     if (matches != null && matches.groupCount == 3) {
       // Check if version is well formatted
-      final version = tagRegex.firstMatch(matches.group(1)!);
+      final version = tagRegex.firstMatch(matches.namedGroup('version')!);
       if (version == null) continue;
 
       tags.add(Tag._(
         version.group(1)!,
-        matches.group(2)!,
-        DateTime.parse(matches.group(3)!),
+        matches.namedGroup('hash')!,
+        DateTime.parse(matches.namedGroup('date')!),
       ));
     }
   }
