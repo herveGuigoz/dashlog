@@ -1,8 +1,14 @@
 # DASHLOG
 
-Command line tool for generating a changelog from git tags and commit history. 
+Command line tool for generating a changelog from git tags and semantic commit history.
 
-### Semantic Commit Messages
+## Install
+
+```
+$ dart pub global activate dashlog
+```
+
+## Semantic Commit Messages
 
 > Format: `<type>(<scope>): <subject>` 
 

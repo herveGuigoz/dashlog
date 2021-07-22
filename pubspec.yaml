@@ -1,7 +1,7 @@
 name: dashlog
-description: A sample command-line application.
-# version: 1.0.0
-# homepage: https://www.example.com
+description: Command line tool for generating a changelog from git tags and semantic commit history.
+version: 0.0.1
+homepage: https://github.com/herveGuigoz/dashlog
 
 environment:
   sdk: '>=2.12.0 <3.0.0'
