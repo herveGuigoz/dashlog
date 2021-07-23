@@ -18,10 +18,11 @@ class Commit extends Comparable<Commit> {
 }
 
 /// Get list of [Commit] between two tags.
-Future<List<Commit>> getCommits({required Tag start, required Tag end}) async {
+Future<List<Commit>> getCommits({required Tag start, Tag? end}) async {
+  final hashs = end != null ? '${start.hash}...${end.hash}' : start.hash;
   final lines = await shell(
     'git',
-    ['log', '${start.hash}...${end.hash}', '-E', '--format=%H;%s;'],
+    ['log', '$hashs', '-E', '--format=%H;%s;'],
   );
 
   return _parseCommits(lines);

@@ -5,6 +5,7 @@ import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 
 import 'commit.dart';
+import 'logger.dart';
 import 'render.dart';
 import 'tag.dart';
 import 'version.dart';
@@ -78,48 +79,59 @@ class CreateCommand extends Command<int> {
 
   @override
   Future<int> run() async {
-    final tags = await getTags();
-    final file = File(outputFile).openWrite(mode: FileMode.write);
-    file.writeln('# CHANGELOG \n');
+    try {
+      final tags = await getTags();
+      final file = File(outputFile).openWrite(mode: FileMode.write);
+      file.writeln('# CHANGELOG \n');
 
-    for (var i = 0; i < tags.length - 1; i++) {
-      final commits = await getCommits(start: tags[i], end: tags[i + 1]);
+      for (var i = 0; i < tags.length; i++) {
+        final isLastTag = tags.last.hash == tags[i].hash;
+        final commits = await getCommits(
+          start: tags[i],
+          end: isLastTag ? null : tags[i + 1],
+        );
 
-      // if commits dont match Conventional Commits patterns we ignore them.
-      commits.removeWhere(
-        (commit) => !RegExp(paternsToRegex).hasMatch(commit.type),
-      );
-      if (commits.isEmpty) continue;
+        // if commits dont match Conventional Commits patterns we ignore them.
+        commits.removeWhere(
+          (commit) => !RegExp(paternsToRegex).hasMatch(commit.type),
+        );
+        if (commits.isEmpty) continue;
 
-      final output = render({
-        'tags': [
-          {
-            'version': tags[i].version,
-            'date': tags[i].date.ddMMyyyy,
-            'commits': [
-              for (final commit in commits)
-                {'type': commit.type, 'description': commit.description},
-            ],
-          },
-        ],
-      });
-      file.writeln(output);
+        final output = render({
+          'tags': [
+            {
+              'version': tags[i].version,
+              'date': tags[i].date.ddMMyyyy,
+              'commits': [
+                for (final commit in commits)
+                  {'type': commit.type, 'description': commit.description},
+              ],
+            },
+          ],
+        });
+        file.writeln(output);
+      }
+
+      await file.close();
+
+      Logger.success('$outputFile was created');
+      return 0;
+    } on ShellException catch (e) {
+      Logger.error(e.toString());
+      return 1;
     }
-
-    await file.close();
-
-    return 0;
   }
 }
 
-Future<List<String>> shell(
-  String executable,
-  List<String> arguments,
-) async {
-  final _process = await Process.start(executable, arguments);
-  final res = await _process.stdout.transform(utf8.decoder).first;
-  _process.kill();
-  return LineSplitter().convert(res).map((line) => line.sanitize).toList();
+Future<List<String>> shell(String executable, List<String> arguments) async {
+  try {
+    final _process = await Process.start(executable, arguments);
+    final res = await _process.stdout.transform(utf8.decoder).first;
+    _process.kill();
+    return LineSplitter().convert(res).map((line) => line.sanitize).toList();
+  } catch (_) {
+    throw ShellException();
+  }
 }
 
 extension on String {
@@ -130,4 +142,9 @@ extension on DateTime {
   String get ddMMyyyy {
     return '${day > 9 ? day : '0$day'}-${month > 9 ? month : '0$month'}-$year';
   }
+}
+
+class ShellException implements Exception {
+  @override
+  String toString() => 'Error: Not a git repository';
 }

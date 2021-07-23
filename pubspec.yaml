@@ -8,7 +8,6 @@ environment:
 
 dependencies: 
   args: ^2.1.1
-  cli_notify: ^0.0.3
   mustache_template: ^2.0.0
   
 dev_dependencies:
