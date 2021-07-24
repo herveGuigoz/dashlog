@@ -8,6 +8,17 @@ Command line tool for generating a changelog from git tags and semantic commit h
 $ dart pub global activate dashlog
 ```
 
+## Usage
+
+```
+Usage: dashlog create [arguments]
+-h, --help                                   Print this usage information.
+-o, --output=<path>                          The output path
+                                             (defaults to "CHANGELOG.md")
+-t, --types=<patterns separated by comma>    Commits types (other types will be ignored)
+                                             (defaults to "feat", "fix", "test", "docs", "build")
+```
+
 ## Semantic Commit Messages
 
 > Format: `<type>(<scope>): <subject>` 
