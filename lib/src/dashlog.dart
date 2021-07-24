@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
+import 'package:process_run/shell.dart';
 
 import 'commit.dart';
 import 'logger.dart';
@@ -123,12 +124,10 @@ class CreateCommand extends Command<int> {
   }
 }
 
-Future<List<String>> shell(String executable, List<String> arguments) async {
+Future<Iterable<String>> shell(String cmd) async {
   try {
-    final _process = await Process.start(executable, arguments);
-    final res = await _process.stdout.transform(utf8.decoder).first;
-    _process.kill();
-    return LineSplitter().convert(res).map((line) => line.sanitize).toList();
+    final res = await Shell(verbose: false).run(cmd).then((res) => res.first);
+    return LineSplitter().convert(res.stdout).map((line) => line.sanitize);
   } catch (_) {
     throw ShellException();
   }

@@ -18,8 +18,7 @@ class Tag extends Comparable<Tag> {
 /// Get list of tag.
 Future<List<Tag>> getTags() async {
   final lines = await shell(
-    'git',
-    ['log', '--no-walk', '--tags', "--pretty='%d;%H;%ci'", '--decorate=short'],
+    'git log --no-walk --tags --pretty="%d;%H;%ci" --decorate=short',
   );
 
   return _parseTags(lines);
@@ -29,7 +28,7 @@ Future<List<Tag>> getTags() async {
 Future<Tag> getLastTag() async => getTags().then((tags) => tags.first);
 
 /// Cast list of [String] to list of [Tag]
-List<Tag> _parseTags(List<String> lines) {
+List<Tag> _parseTags(Iterable<String> lines) {
   final tags = <Tag>[];
   final tagRegex = RegExp(r'tag:\s*([^,)]+)');
   final lineRegex = RegExp(r'^(?<version>.+);(?<hash>.+);(?<date>.+)$');
