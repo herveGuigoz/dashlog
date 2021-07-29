@@ -1,5 +1,10 @@
 # CHANGELOG 
 
+## v0.0.2
+> 29-07-2021
+
+* 👌 fix:  package executables
+
 ## v0.0.1
 > 24-07-2021
 
