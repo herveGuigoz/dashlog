@@ -1,10 +1,13 @@
 name: dashlog
 description: Command line tool for generating a changelog from git tags and semantic commit history.
-version: 0.0.1
+version: 0.0.2
 homepage: https://github.com/herveGuigoz/dashlog
 
 environment:
   sdk: '>=2.12.0 <3.0.0'
+
+executables:
+  dashlog: main
 
 dependencies: 
   args: ^2.1.1
